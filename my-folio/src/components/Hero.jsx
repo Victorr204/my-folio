@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
-import img from "../assets/my-img.png";
+import img from "../assets/my-img.jpg";
 
 export default function Hero({ avatar }) {
   const avatarSrc = avatar || img;
