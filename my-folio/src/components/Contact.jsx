@@ -1,139 +1,125 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp } from "react-icons/fa";
+import React, { useState, useRef } from "react";
+import Section from "../ui/layout/Section";
+import Heading from "../ui/typography/Heading";
+import Text from "../ui/typography/Text";
+import Button from "../ui/buttons/Button";
+import ContactCardUI from "../ui/contact/ContactCardUI";
+import ContactSocialsUI from "../ui/contact/ContactSocialsUI";
+
+import { FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 
 export default function Contact() {
-  const [selectedOption, setSelectedOption] = useState("");
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [submitted, setSubmitted] = useState(false);
+  const mapRef = useRef(null);
 
-  const whatsappNumber = "2349037306845"; 
+  const whatsappNumber = "2349037306845";
 
-  const handleSelect = (e) => {
-    const value = e.target.value;
-    setSelectedOption(value);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    if (value === "") return;
-
-    const encodedMessage = encodeURIComponent(
-      `Hello Victor, I am interested in: ${value}.`
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const subject = encodeURIComponent("Contact Form Message");
+    const body = encodeURIComponent(
+      `Name: ${formData.name}\nEmail: ${formData.email}\nMessage:\n${formData.message}`
     );
+    window.location.href = `mailto:victorreuben707@gmail.com?subject=${subject}&body=${body}`;
+    setSubmitted(true);
+    setFormData({ name: "", email: "", message: "" });
+  };
 
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, "_blank");
+  const handleEmailClick = () => window.location.href = "mailto:victorreuben707@gmail.com";
+  const handleWhatsappClick = () => window.open(`https://wa.me/${whatsappNumber}`, "_blank");
+  const handleLocationClick = () => {
+    if (mapRef.current) {
+      mapRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
-    <section
-      id="contact"
-      className="relative py-24 px-6 bg-gradient-to-b from-[#0A0F14] to-[#0D1117] text-white overflow-hidden"
-    >
-      {/* background glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(0,194,255,0.08)_0%,_transparent_70%)] pointer-events-none" />
+    <Section id="contact">
+      {/* Centered heading */}
+      <div className="text-center mb-12">
+        <Heading>Contact Me</Heading>
+        <Text>
+          Let’s build something amazing together. I’m open to collaborations, freelance projects, and opportunities.
+        </Text>
+      </div>
 
-      <div className="relative max-w-3xl mx-auto text-center">
-        <motion.h2
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl font-extrabold text-cyan-400 drop-shadow-[0_0_10px_#00C2FF] mb-6"
-        >
-          Contact Me
-        </motion.h2>
+      <div className="flex flex-col md:flex-row gap-12 md:gap-24">
+        {/* Left: Contact Form inside a ContactCardUI */}
+        <div className="md:w-1/2">
+          <ContactCardUI>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <input
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <textarea
+                name="message"
+                placeholder="Your Message"
+                required
+                value={formData.message}
+                onChange={handleChange}
+                rows={6}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <Button type="submit">Send Message</Button>
+              {submitted && <p className="text-green-500 mt-2">Message sent! Check your email.</p>}
+            </form>
+          </ContactCardUI>
+        </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-          className="text-gray-300 max-w-xl mx-auto mb-10 leading-relaxed"
-        >
-          Let’s build something amazing together 🚀 <br />
-          I’m open to collaborations, freelance projects, and opportunities.
-        </motion.p>
-
-        {/* Contact Card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          whileHover={{ scale: 1.02 }}
-          className="bg-[#101820]/90 backdrop-blur-md border border-cyan-400/30 hover:border-cyan-400/60 rounded-2xl py-8 px-6 shadow-[0_0_25px_rgba(0,194,255,0.15)] hover:shadow-[0_0_35px_rgba(0,194,255,0.3)] transition-all duration-500"
-        >
-          <a
-            href="mailto:victorreuben707@gmail.com"
-            className="flex items-center justify-center gap-3 text-lg text-cyan-400 hover:text-cyan-300 transition-colors"
-          >
+        {/* Right: Contact Info Blocks */}
+        <div className="md:w-1/2 flex flex-col gap-6">
+          <ContactCardUI onClick={handleEmailClick} className="cursor-pointer hover:scale-105 transition-transform flex items-center gap-3">
             <FaEnvelope size={22} />
             victorreuben707@gmail.com
-          </a>
-        </motion.div>
+          </ContactCardUI>
 
-        {/* WhatsApp Button */}
-        <motion.a
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-          href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hello Victor, I would like to contact you!")}`}
-          target="_blank"
-          className="mt-8 inline-flex items-center gap-3 bg-green-500 text-black font-semibold px-6 py-3 rounded-xl shadow-lg hover:bg-green-400 transition"
-        >
-          <FaWhatsapp size={24} />
-          Contact on WhatsApp
-        </motion.a>
+          <ContactCardUI onClick={handleWhatsappClick} className="cursor-pointer hover:scale-105 transition-transform flex items-center gap-3">
+            <FaWhatsapp size={22} />
+            +2349037306845
+          </ContactCardUI>
 
-        {/* Dropdown Contact Options */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.45 }}
-          className="mt-10"
-        >
-          <label className="block mb-2 text-cyan-400 font-medium">
-            Contact me for:
-          </label>
-
-          <select
-            value={selectedOption}
-            onChange={handleSelect}
-            className="bg-[#0F141A] border border-cyan-400/40 text-white px-4 py-3 rounded-xl w-full max-w-sm mx-auto focus:outline-none focus:border-cyan-400 transition"
-          >
-            <option value="">-- Select an Option --</option>
-            <option value="Build a website">Build a website</option>
-            <option value="Build a mobile app">Build a mobile app</option>
-            <option value="Learn elementary web-development">Learn elementary web-development</option>
-            <option value="Learn intermediate web-development">Learn intermediate web-development</option>
-            <option value="Learn full web-development">Learn full web-development</option>
-          </select>
-        </motion.div>
-
-        {/* Social icons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.6 }}
-          className="flex justify-center gap-6 mt-10"
-        >
-          <a
-            href="https://github.com/victorr204"
-            target="_blank"
-            rel="noreferrer"
-            className="text-gray-400 hover:text-cyan-400 transition-colors"
-          >
-            <FaGithub size={28} />
-          </a>
-          <a
-            href="https://www.linkedin.com/in/victor-ruben-566546397"
-            target="_blank"
-            rel="noreferrer"
-            className="text-gray-400 hover:text-cyan-400 transition-colors"
-          >
-            <FaLinkedin size={28} />
-          </a>
-        </motion.div>
+          <ContactCardUI onClick={handleLocationClick} className="cursor-pointer hover:scale-105 transition-transform flex items-center gap-3">
+            <FaMapMarkerAlt size={22} />
+            Lagos, Nigeria
+          </ContactCardUI>
+        </div>
       </div>
-    </section>
+
+      {/* Full-width Map */}
+      <div ref={mapRef} className="mt-12 rounded-lg overflow-hidden h-64">
+        <iframe
+          title="Location Map"
+          src="https://maps.google.com/maps?q=Lagos,Nigeria&t=&z=13&ie=UTF8&iwloc=&output=embed"
+          width="100%"
+          height="100%"
+          className="border-0"
+          allowFullScreen=""
+          loading="lazy"
+        />
+      </div>
+
+     
+    </Section>
   );
 }

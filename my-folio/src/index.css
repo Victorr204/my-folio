@@ -1,2 +1,26 @@
 @import "tailwindcss";
 @source "./src";
+
+:root {
+  --bg: #0D1117;
+  --surface: #1E293B;
+  --primary: #38BDF8;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --border: rgba(255,255,255,0.1);
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(200%); }
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
+}

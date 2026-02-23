@@ -1,72 +1,97 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import Hero from "./Hero";
-import img3 from "../assets/logo02.png"
+import React, { useEffect, useRef, useState } from "react";
+import { Home, User, Briefcase, Mail, FileText } from "lucide-react";
+import { Link } from "react-router-dom";
 
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+import NavBarUI from "../ui/navigation/NavBarUI";
+import NavLink from "../ui/navigation/NavLink";
+import MobileDockUI from "../ui/navigation/MobileDockUI";
+import MobileDockItem from "../ui/navigation/MobileDockItem";
 
-  const toggleMenu = () => setIsOpen(!isOpen);
+import img3 from "../assets/logo02.png";
+
+const Navbar = () => {
+  const [hidden, setHidden] = useState(false);
+  const scrollTimeout = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Hide immediately while scrolling
+      setHidden(true);
+
+      // Clear previous idle timer
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+
+      // Show navbar when scrolling stops
+      scrollTimeout.current = setTimeout(() => {
+        setHidden(false);
+      }, 180); // idle delay (tweakable)
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+    };
+  }, []);
 
   return (
-    <motion.nav
-      initial={{ y: -50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="backdrop-blur-md bg-[#0D1117]/80 border-b border-cyan-400/20 fixed top-0 w-full z-50 px-6 py-4"
-    >
-       
-      <div className="flex justify-between items-center max-w-6xl mx-auto">
-       
-        {/* Logo / Name */}
-        <h1 className="text-2xl font-extrabold text-cyan-400 tracking-wide flex">
-          <img src={img3} alt="logo" width={50} />
-          <a href={{Hero}}>Victor Ruben</a>
-        </h1>
+    <>
+      {/* DESKTOP HEADER */}
+      <NavBarUI
+        hidden={hidden}
+        left={
+          <div className="flex items-center gap-2">
+            <img src={img3} alt="Victor Ruben Logo" width={42} />
+            <span className="tracking-wide">Victor Ruben</span>
+          </div>
+        }
+        center={
+          <>
+            <NavLink href="#about">About</NavLink>
+            <NavLink href="#skills">Skills</NavLink>
+            <NavLink href="#projects">Projects</NavLink>
+            <NavLink href="#contact">Contact</NavLink>
+          </>
+        }
+        right={
+          <Link
+  to="/resume"
+  className="
+    relative px-5 py-2.5 rounded-full
+    bg-[#2563EB] text-white
+    font-medium
+    shadow-lg shadow-blue-500/40
+    transition-all duration-300
+    hover:bg-[#1D4ED8]
+    after:absolute after:left-0 after:-bottom-1
+    after:h-0.5 after:w-full
+    after:bg-white
+    after:scale-x-0 after:origin-left
+    after:transition-transform after:duration-300
+    hover:after:scale-x-100
+  "
+>
+  Resume
+</Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex space-x-8 text-gray-300 font-medium">
-          {["About", "Skills", "Projects", "Contact"].map((item) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              className="relative group transition"
-            >
-              <span className="group-hover:text-cyan-400">{item}</span>
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-cyan-400 group-hover:w-full transition-all duration-300" />
-            </a>
-          ))}
-        </div>
+        }
+      />
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={toggleMenu}
-          className="md:hidden text-cyan-400 focus:outline-none"
-        >
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="md:hidden mt-4 space-y-3 px-2 pb-3 text-gray-300"
-        >
-          {["About", "Skills", "Projects", "Contact"].map((item) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              onClick={() => setIsOpen(false)}
-              className="block px-4 py-2 rounded-md hover:bg-cyan-400/10 hover:text-cyan-400 transition"
-            >
-              {item}
-            </a>
-          ))}
-        </motion.div>
-      )}
-    </motion.nav>
+      {/* MOBILE DOCK */}
+      <MobileDockUI>
+        <MobileDockItem href="#hero" icon={<Home size={18} />} label="Home" />
+        <MobileDockItem href="#about" icon={<User size={18} />} label="About" />
+        <MobileDockItem href="#projects" icon={<Briefcase size={18} />} label="Work" />
+        <MobileDockItem href="#contact" icon={<Mail size={18} />} label="Contact" />
+        <MobileDockItem href="/resume" icon={<FileText size={18} />} label="Resume" />
+      </MobileDockUI>
+    </>
   );
-}
+};
+
+export default Navbar;
