@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Home, User, Briefcase, Mail, FileText, ArrowLeft, Shield, Cookie, FileJson } from "lucide-react";
+import { Home, User, Briefcase, Mail, FileText, ArrowLeft, Shield, Cookie, FileJson, Code } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import NavBarUI from "../ui/navigation/NavBarUI";
@@ -73,7 +73,9 @@ const Navbar = () => {
         // If on home page, just scroll
         const element = document.getElementById(sectionId);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          const yOffset = -80; // Offset to account for fixed header
+          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: 'smooth' });
         }
       }
     }
@@ -88,11 +90,6 @@ const Navbar = () => {
     }
   };
 
-  const handleResumeClick = (e) => {
-    e.preventDefault();
-    navigate('/resume');
-  };
-
   // Handle scrolling after navigation to home
   useEffect(() => {
     if (isHomePage && location.state?.scrollTo) {
@@ -100,7 +97,9 @@ const Navbar = () => {
       if (element) {
         // Small delay to ensure the page has rendered
         setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth' });
+          const yOffset = -80; // Offset to account for fixed header
+          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: 'smooth' });
         }, 100);
       }
       // Clear the state to prevent re-scrolling on refresh
@@ -120,14 +119,14 @@ const Navbar = () => {
           left={
             <button
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+              className="hidden md:flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
             >
               <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
               <span>Back to Home</span>
             </button>
           }
           center={
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mx-auto md:mx-0">
               {isPolicyPage && (
                 <>
                   {location.pathname === '/privacy-policy' && <Shield size={20} className="text-blue-500" />}
@@ -140,13 +139,33 @@ const Navbar = () => {
               </span>
             </div>
           }
-          right={<div className="w-24" />} // Empty right for spacing
+          right={<div className="hidden md:block w-24" />} // Empty right for spacing (hidden on mobile)
         />
-
-        {/* MOBILE DOCK - Hide on resume/policy pages */}
-        {/* No mobile dock on these pages */}
         
-        {/* Mobile back button for smaller screens (optional enhancement) */}
+        {/* Mobile header - only shows page name, no back button */}
+        <div className="md:hidden">
+          <NavBarUI
+            hidden={false}
+            left={<div className="w-10" />} // Empty left for balance
+            center={
+              <div className="flex items-center gap-2">
+                {isPolicyPage && (
+                  <>
+                    {location.pathname === '/privacy-policy' && <Shield size={20} className="text-blue-500" />}
+                    {location.pathname === '/terms-of-service' && <FileJson size={20} className="text-blue-500" />}
+                    {location.pathname === '/cookie-policy' && <Cookie size={20} className="text-blue-500" />}
+                  </>
+                )}
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                  {pageTitle}
+                </span>
+              </div>
+            }
+            right={<div className="w-10" />} // Small spacer for balance
+          />
+        </div>
+        
+        {/* Mobile bottom back button - only on mobile */}
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 md:hidden">
           <button
             onClick={() => navigate('/')}
@@ -209,7 +228,7 @@ const Navbar = () => {
         }
         right={
           <button
-            onClick={handleResumeClick}
+            onClick={() => navigate('/resume')}
             className={`
               relative px-5 py-2.5 rounded-full
               bg-[#2563EB] text-white
@@ -230,21 +249,21 @@ const Navbar = () => {
         }
       />
 
-      {/* MOBILE DOCK - Only show on home page */}
+      {/* MOBILE DOCK - Updated: Removed Home, added Skills */}
       <MobileDockUI>
-        <MobileDockItem 
-          href="#hero" 
-          icon={<Home size={18} />} 
-          label="Home"
-          onClick={handleHomeClick}
-          active={location.hash === '#hero' || location.hash === ''}
-        />
         <MobileDockItem 
           href="#about" 
           icon={<User size={18} />} 
           label="About"
           onClick={(e) => handleHashLinkClick(e, '#about')}
           active={location.hash === '#about'}
+        />
+        <MobileDockItem 
+          href="#skills" 
+          icon={<Code size={18} />} 
+          label="Skills"
+          onClick={(e) => handleHashLinkClick(e, '#skills')}
+          active={location.hash === '#skills'}
         />
         <MobileDockItem 
           href="#projects" 
@@ -264,7 +283,10 @@ const Navbar = () => {
           href="/resume" 
           icon={<FileText size={18} />} 
           label="Resume"
-          onClick={handleResumeClick}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate('/resume');
+          }}
         />
       </MobileDockUI>
     </>
