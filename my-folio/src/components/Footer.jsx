@@ -13,7 +13,6 @@ export default function Footer() {
 
   return (
     <FooterUI>
-
       {/* HEADER ROW */}
       <FooterRow>
         {/* Left */}
@@ -81,20 +80,20 @@ export default function Footer() {
           </FadeUp>
         </FooterColumn>
 
-        {/* Right */}
+        {/* Right - Policy Links */}
         <FooterColumn className="flex flex-row gap-4">
           <FadeUp delay={0.2}>
-              <FooterLink href="/privacy-policy" className="text-sm hover:text-blue-400 transition-colors">
+            <FooterLink href="/privacy-policy" className="text-sm opacity-70 hover:text-blue-400 transition-colors">
               Privacy Policy
             </FooterLink>
           </FadeUp>
           <FadeUp delay={0.3}>
-            <FooterLink href="/terms-of-service" className="text-sm hover:text-blue-400 transition-colors">
+            <FooterLink href="/terms-of-service" className="text-sm opacity-70 hover:text-blue-400 transition-colors">
               Terms of Service
             </FooterLink>
           </FadeUp>
           <FadeUp delay={0.4}>
-            <FooterLink href="/cookie-policy" className="text-sm hover:text-blue-400 transition-colors">
+            <FooterLink href="/cookie-policy" className="text-sm opacity-70 hover:text-blue-400 transition-colors">
               Cookie Policy
             </FooterLink>
           </FadeUp>

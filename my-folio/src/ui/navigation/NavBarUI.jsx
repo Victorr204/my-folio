@@ -15,15 +15,15 @@ const NavBarUI = ({ left, center, right, mobile, hidden }) => {
         <nav
           className="
             flex items-center justify-between
-            px-6 py-3
+            px-4 sm:px-6 py-2 sm:py-3
           "
         >
           {/* Left */}
-          <div className="flex items-center gap-3 text-base font-semibold text-white">
+          <div className="flex items-center gap-2 sm:gap-3 text-sm sm:text-base font-semibold text-white">
             {left}
           </div>
 
-          {/* Center */}
+          {/* Center - Desktop only */}
           <div
             className="
               hidden md:flex items-center justify-center gap-10
@@ -38,7 +38,7 @@ const NavBarUI = ({ left, center, right, mobile, hidden }) => {
             {center}
           </div>
 
-          {/* Right */}
+          {/* Right - Desktop only */}
           <div className="hidden md:flex items-center gap-4 text-sm font-medium">
             {right}
           </div>

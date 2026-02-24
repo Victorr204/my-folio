@@ -167,7 +167,7 @@ const HeroImageFrame = ({ src, alt, name }) => {
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
                 className="bg-white/10 backdrop-blur-md text-white text-center p-8 rounded-xl border border-white/20 w-[85%] max-w-[300px]"
               >
-                <FaRocket className="text-3xl mb-3 mx-auto text-white/80" />
+                
                 <p className="font-semibold text-xl mb-1">{name}</p>
                 <p className="text-sm text-white/80 mb-2">Frontend Developer</p>
                 <p className="text-xs text-white/70 leading-relaxed">
