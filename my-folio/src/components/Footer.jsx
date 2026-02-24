@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"; // Add this import
 import { FaGithub, FaLinkedin, FaWhatsapp, FaFacebookF, FaInstagram } from "react-icons/fa";
 
 import FooterUI from "../ui/footer/FooterUI";
@@ -80,22 +81,22 @@ export default function Footer() {
           </FadeUp>
         </FooterColumn>
 
-        {/* Right - Policy Links */}
+        {/* Right - Policy Links - FIXED WITH REACT ROUTER LINK */}
         <FooterColumn className="flex flex-row gap-4">
           <FadeUp delay={0.2}>
-            <FooterLink href="/privacy-policy" className="text-sm opacity-70 hover:text-blue-400 transition-colors">
+            <Link to="/privacy-policy" className="text-sm opacity-70 hover:text-blue-400 transition-colors">
               Privacy Policy
-            </FooterLink>
+            </Link>
           </FadeUp>
           <FadeUp delay={0.3}>
-            <FooterLink href="/terms-of-service" className="text-sm opacity-70 hover:text-blue-400 transition-colors">
+            <Link to="/terms-of-service" className="text-sm opacity-70 hover:text-blue-400 transition-colors">
               Terms of Service
-            </FooterLink>
+            </Link>
           </FadeUp>
           <FadeUp delay={0.4}>
-            <FooterLink href="/cookie-policy" className="text-sm opacity-70 hover:text-blue-400 transition-colors">
+            <Link to="/cookie-policy" className="text-sm opacity-70 hover:text-blue-400 transition-colors">
               Cookie Policy
-            </FooterLink>
+            </Link>
           </FadeUp>
         </FooterColumn>
       </FooterRow>
