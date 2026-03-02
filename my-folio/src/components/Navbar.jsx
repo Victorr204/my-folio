@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Home, User, Briefcase, Mail, FileText, ArrowLeft, Shield, Cookie, FileJson, Code } from "lucide-react";
+import { Home, User, Briefcase, Mail, FileText, ArrowLeft, Shield, Cookie, FileJson, Code, AlertCircle } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import NavBarUI from "../ui/navigation/NavBarUI";
@@ -11,7 +11,9 @@ import img3 from "../assets/logo02.png";
 
 const Navbar = () => {
   const [hidden, setHidden] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
   const scrollTimeout = useRef(null);
+  const notificationTimeout = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -60,6 +62,15 @@ const Navbar = () => {
     };
   }, [showSimplifiedHeader]);
 
+  // Cleanup notification timeout
+  useEffect(() => {
+    return () => {
+      if (notificationTimeout.current) {
+        clearTimeout(notificationTimeout.current);
+      }
+    };
+  }, []);
+
   const handleHashLinkClick = (e, href) => {
     e.preventDefault();
     
@@ -71,12 +82,14 @@ const Navbar = () => {
         navigate('/', { state: { scrollTo: sectionId } });
       } else {
         // If on home page, just scroll
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const yOffset = -80; // Offset to account for fixed header
-          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-          window.scrollTo({ top: y, behavior: 'smooth' });
-        }
+        setTimeout(() => {
+          const element = document.getElementById(sectionId);
+          if (element) {
+            const yOffset = -80; // Offset to account for fixed header
+            const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+          }
+        }, 100); // Small delay to ensure DOM is ready
       }
     }
   };
@@ -87,6 +100,31 @@ const Navbar = () => {
       navigate('/');
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleResumeClick = (e) => {
+    e.preventDefault();
+    
+    // Check if it's mobile (you can adjust the breakpoint as needed)
+    const isMobile = window.innerWidth < 768;
+    
+    if (isMobile) {
+      // Show notification
+      setShowNotification(true);
+      
+      // Clear any existing timeout
+      if (notificationTimeout.current) {
+        clearTimeout(notificationTimeout.current);
+      }
+      
+      // Auto-hide after 3 seconds
+      notificationTimeout.current = setTimeout(() => {
+        setShowNotification(false);
+      }, 3000);
+    } else {
+      // Desktop - navigate to resume
+      navigate('/resume');
     }
   };
 
@@ -228,7 +266,7 @@ const Navbar = () => {
         }
         right={
           <button
-            onClick={() => navigate('/resume')}
+            onClick={handleResumeClick}
             className={`
               relative px-5 py-2.5 rounded-full
               bg-[#2563EB] text-white
@@ -283,12 +321,21 @@ const Navbar = () => {
           href="/resume" 
           icon={<FileText size={18} />} 
           label="Resume"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate('/resume');
-          }}
+          onClick={handleResumeClick}
         />
       </MobileDockUI>
+
+      {/* Resume Notification for Mobile */}
+      {showNotification && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-down">
+          <div className="bg-amber-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 max-w-xs mx-auto">
+            <AlertCircle size={20} className="flex-shrink-0" />
+            <p className="text-sm font-medium">
+              Resume can only be viewed on desktop
+            </p>
+          </div>
+        </div>
+      )}
     </>
   );
 };
