@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Home, User, Briefcase, Mail, FileText, ArrowLeft, Shield, Cookie, FileJson, Code, AlertCircle } from "lucide-react";
+import { Home, User, Briefcase, Mail, FileText, ArrowLeft, Shield, Cookie, FileJson, Code, AlertCircle, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import NavBarUI from "../ui/navigation/NavBarUI";
@@ -8,6 +8,38 @@ import MobileDockUI from "../ui/navigation/MobileDockUI";
 import MobileDockItem from "../ui/navigation/MobileDockItem";
 
 import img3 from "../assets/logo02.png";
+
+// Custom Alert Component
+const CustomAlert = ({ message, type = "warning", onClose }) => {
+  const alertStyles = {
+    warning: "bg-amber-50 border-amber-200 text-amber-800",
+    error: "bg-red-50 border-red-200 text-red-800",
+    success: "bg-green-50 border-green-200 text-green-800",
+    info: "bg-blue-50 border-blue-200 text-blue-800"
+  };
+
+  const iconColors = {
+    warning: "text-amber-500",
+    error: "text-red-500",
+    success: "text-green-500",
+    info: "text-blue-500"
+  };
+
+  return (
+    <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-md animate-slide-down`}>
+      <div className={`${alertStyles[type]} border rounded-lg shadow-lg p-4 flex items-start gap-3`}>
+        <AlertCircle size={20} className={`${iconColors[type]} flex-shrink-0 mt-0.5`} />
+        <p className="text-sm font-medium flex-1">{message}</p>
+        <button 
+          onClick={onClose}
+          className="text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <X size={18} />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const Navbar = () => {
   const [hidden, setHidden] = useState(false);
@@ -85,11 +117,16 @@ const Navbar = () => {
         setTimeout(() => {
           const element = document.getElementById(sectionId);
           if (element) {
-            const yOffset = -80; // Offset to account for fixed header
+            const yOffset = -100; // Increased offset to account for fixed header
             const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: 'smooth' });
+            window.scrollTo({ 
+              top: y, 
+              behavior: 'smooth' 
+            });
+          } else {
+            console.log(`Element with id "${sectionId}" not found`);
           }
-        }, 100); // Small delay to ensure DOM is ready
+        }, 150); // Increased delay to ensure DOM is ready
       }
     }
   };
@@ -103,30 +140,27 @@ const Navbar = () => {
     }
   };
 
-  const handleResumeClick = (e) => {
+  // Desktop resume click handler
+  const handleDesktopResumeClick = (e) => {
     e.preventDefault();
-    
-    // Check if it's mobile (you can adjust the breakpoint as needed)
-    const isMobile = window.innerWidth < 768;
-    
-    if (isMobile) {
-      // Show notification
-      setShowNotification(true);
-      
-      // Clear any existing timeout
-      if (notificationTimeout.current) {
-        clearTimeout(notificationTimeout.current);
-      }
-      
-      // Auto-hide after 3 seconds
-      notificationTimeout.current = setTimeout(() => {
-        setShowNotification(false);
-      }, 3000);
-    } else {
-      // Desktop - navigate to resume
-      navigate('/resume');
-    }
+    navigate('/resume');
   };
+
+  // Mobile resume click handler
+const handleMobileResumeClick = (e) => {
+  e.preventDefault();
+  e.stopPropagation(); // Add this to prevent event bubbling
+  
+  console.log("Mobile resume clicked!"); // Add this to debug
+  
+  // Simply show the notification
+  setShowNotification(true);
+  
+  // Auto-hide after 3 seconds
+  setTimeout(() => {
+    setShowNotification(false);
+  }, 3000);
+};
 
   // Handle scrolling after navigation to home
   useEffect(() => {
@@ -135,15 +169,32 @@ const Navbar = () => {
       if (element) {
         // Small delay to ensure the page has rendered
         setTimeout(() => {
-          const yOffset = -80; // Offset to account for fixed header
+          const yOffset = -100; // Offset to account for fixed header
           const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-          window.scrollTo({ top: y, behavior: 'smooth' });
-        }, 100);
+          window.scrollTo({ 
+            top: y, 
+            behavior: 'smooth' 
+          });
+        }, 200);
       }
       // Clear the state to prevent re-scrolling on refresh
       navigate('/', { replace: true, state: {} });
     }
   }, [isHomePage, location.state, navigate]);
+
+  // Add effect to check if elements exist on page load
+  useEffect(() => {
+    if (isHomePage) {
+      // Verify that sections exist
+      const sections = ['about', 'skills', 'projects', 'contact'];
+      sections.forEach(id => {
+        const element = document.getElementById(id);
+        if (!element) {
+          console.log(`Section with id "${id}" not found on page`);
+        }
+      });
+    }
+  }, [isHomePage]);
 
   // If on resume page or policy page, show a simplified header with back button
   if (showSimplifiedHeader) {
@@ -151,34 +202,59 @@ const Navbar = () => {
     
     return (
       <>
-        {/* DESKTOP HEADER - Simplified for resume/policy pages */}
-        <NavBarUI
-          hidden={false}
-          left={
-            <button
-              onClick={() => navigate('/')}
-              className="hidden md:flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
-            >
-              <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-              <span>Back to Home</span>
-            </button>
-          }
-          center={
-            <div className="flex items-center gap-2 mx-auto md:mx-0">
-              {isPolicyPage && (
-                <>
-                  {location.pathname === '/privacy-policy' && <Shield size={20} className="text-blue-500" />}
-                  {location.pathname === '/terms-of-service' && <FileJson size={20} className="text-blue-500" />}
-                  {location.pathname === '/cookie-policy' && <Cookie size={20} className="text-blue-500" />}
-                </>
-              )}
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                {pageTitle}
-              </span>
-            </div>
-          }
-          right={<div className="hidden md:block w-24" />} // Empty right for spacing (hidden on mobile)
-        />
+      {/* DESKTOP HEADER */}
+<NavBarUI
+  hidden={hidden}
+  left={
+    <button
+      onClick={handleHomeClick}
+      className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+    >
+      <img src={img3} alt="Victor Ruben Logo" width={42} />
+      <span className="tracking-wide">Victor Ruben</span>
+    </button>
+  }
+  center={
+    <>
+      <NavLink 
+        href="#about" 
+        onClick={(e) => handleHashLinkClick(e, '#about')}
+        active={location.hash === '#about'}
+      >
+        About
+      </NavLink>
+      <NavLink 
+        href="#skills"  // Changed from "#Skills" to "#skills" (lowercase)
+        onClick={(e) => handleHashLinkClick(e, '#skills')}
+        active={location.hash === '#skills'}
+      >
+        Skills
+      </NavLink>
+      <NavLink 
+        href="#projects" 
+        onClick={(e) => handleHashLinkClick(e, '#projects')}
+        active={location.hash === '#projects'}
+      >
+        Projects
+      </NavLink>
+      <NavLink 
+        href="#contact" 
+        onClick={(e) => handleHashLinkClick(e, '#contact')}
+        active={location.hash === '#contact'}
+      >
+        Contact
+      </NavLink>
+    </>
+  }
+  right={
+    <button
+      onClick={handleDesktopResumeClick}
+      className="hidden md:block relative px-5 py-2.5 rounded-full bg-[#2563EB] text-white font-medium shadow-lg shadow-blue-500/40 transition-all duration-300 hover:bg-[#1D4ED8] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:bg-white after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100"
+    >
+      Resume
+    </button>
+  }
+/>
         
         {/* Mobile header - only shows page name, no back button */}
         <div className="md:hidden">
@@ -199,7 +275,7 @@ const Navbar = () => {
                 </span>
               </div>
             }
-            right={<div className="w-10" />} // Small spacer for balance
+            right={<div className="w-10" />} 
           />
         </div>
         
@@ -242,7 +318,7 @@ const Navbar = () => {
               About
             </NavLink>
             <NavLink 
-              href="#skills" 
+              href="#Skills" 
               onClick={(e) => handleHashLinkClick(e, '#skills')}
               active={location.hash === '#skills'}
             >
@@ -266,21 +342,8 @@ const Navbar = () => {
         }
         right={
           <button
-            onClick={handleResumeClick}
-            className={`
-              relative px-5 py-2.5 rounded-full
-              bg-[#2563EB] text-white
-              font-medium
-              shadow-lg shadow-blue-500/40
-              transition-all duration-300
-              hover:bg-[#1D4ED8]
-              after:absolute after:left-0 after:-bottom-1
-              after:h-0.5 after:w-full
-              after:bg-white
-              after:scale-x-0 after:origin-left
-              after:transition-transform after:duration-300
-              hover:after:scale-x-100
-            `}
+            onClick={handleDesktopResumeClick}
+            className="hidden md:block relative px-5 py-2.5 rounded-full bg-[#2563EB] text-white font-medium shadow-lg shadow-blue-500/40 transition-all duration-300 hover:bg-[#1D4ED8] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:bg-white after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100"
           >
             Resume
           </button>
@@ -288,53 +351,51 @@ const Navbar = () => {
       />
 
       {/* MOBILE DOCK - Updated: Removed Home, added Skills */}
-      <MobileDockUI>
-        <MobileDockItem 
-          href="#about" 
-          icon={<User size={18} />} 
-          label="About"
-          onClick={(e) => handleHashLinkClick(e, '#about')}
-          active={location.hash === '#about'}
-        />
-        <MobileDockItem 
-          href="#skills" 
-          icon={<Code size={18} />} 
-          label="Skills"
-          onClick={(e) => handleHashLinkClick(e, '#skills')}
-          active={location.hash === '#skills'}
-        />
-        <MobileDockItem 
-          href="#projects" 
-          icon={<Briefcase size={18} />} 
-          label="Projects"
-          onClick={(e) => handleHashLinkClick(e, '#projects')}
-          active={location.hash === '#projects'}
-        />
-        <MobileDockItem 
-          href="#contact" 
-          icon={<Mail size={18} />} 
-          label="Contact"
-          onClick={(e) => handleHashLinkClick(e, '#contact')}
-          active={location.hash === '#contact'}
-        />
-        <MobileDockItem 
-          href="/resume" 
-          icon={<FileText size={18} />} 
-          label="Resume"
-          onClick={handleResumeClick}
-        />
-      </MobileDockUI>
+<MobileDockUI>
+  <MobileDockItem 
+    href="#about" 
+    icon={<User size={18} />} 
+    label="About"
+    onClick={(e) => handleHashLinkClick(e, '#about')}
+    active={location.hash === '#about'}
+  />
+  <MobileDockItem 
+    href="#skills"  // Changed from "#Skills" to "#skills" (lowercase)
+    icon={<Code size={18} />} 
+    label="Skills"
+    onClick={(e) => handleHashLinkClick(e, '#skills')}
+    active={location.hash === '#skills'}
+  />
+  <MobileDockItem 
+    href="#projects" 
+    icon={<Briefcase size={18} />} 
+    label="Projects"
+    onClick={(e) => handleHashLinkClick(e, '#projects')}
+    active={location.hash === '#projects'}
+  />
+  <MobileDockItem 
+    href="#contact" 
+    icon={<Mail size={18} />} 
+    label="Contact"
+    onClick={(e) => handleHashLinkClick(e, '#contact')}
+    active={location.hash === '#contact'}
+  />
+  <div onClick={handleMobileResumeClick}>
+    <MobileDockItem 
+      href="#"  
+      icon={<FileText size={18} />} 
+      label="Resume"
+    />
+  </div>
+</MobileDockUI>
 
-      {/* Resume Notification for Mobile */}
+      {/* Resume Notification for Mobile - Using Custom Alert */}
       {showNotification && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-down">
-          <div className="bg-amber-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 max-w-xs mx-auto">
-            <AlertCircle size={20} className="flex-shrink-0" />
-            <p className="text-sm font-medium">
-              Resume can only be viewed on desktop
-            </p>
-          </div>
-        </div>
+        <CustomAlert 
+          message="Resume can only be viewed on desktop. Please visit on a larger screen."
+          type="warning"
+          onClose={() => setShowNotification(false)}
+        />
       )}
     </>
   );
